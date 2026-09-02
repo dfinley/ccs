@@ -122,9 +122,8 @@ describe('handleOrderSubcommand', () => {
 
   describe('file-mode show with residual priorities', () => {
     it('renders selector pick order (priority desc) and flags drift instead of alphabetical order', async () => {
-      // Residual on-disk priorities, no stored config -> file mode + drift.
-      // claude-a sorts first alphabetically, but b has the higher priority, so
-      // the selector drains b first. The display must follow the selector.
+      // Explicit below-minimum version to prove show is ungated on old binaries.
+      await configureBackend('original', '6.6.105');
       writeAuthFile('claude-a.json', { email: 'a@x.com', priority: 1 });
       writeAuthFile('claude-b.json', { email: 'b@x.com', priority: 5 });
 
@@ -133,6 +132,7 @@ describe('handleOrderSubcommand', () => {
       registerAccount('claude', 'claude-b.json', 'b@x.com');
 
       await runOrderSubcommand(['claude']);
+      expect(process.exitCode).toBe(0);
 
       const output = lines.join('\n');
       // b@x.com (priority 5) must appear before a@x.com (priority 1).
@@ -142,7 +142,6 @@ describe('handleOrderSubcommand', () => {
       expect(idxA).toBeGreaterThan(idxB);
 
       // Drift surfaced (same as the manual/tier branch), and the mode label no
-      // longer falsely claims "no priority set" under residual priorities.
       expect(output).toContain('Drift detected');
       expect(output).toContain('residual priorities present');
       expect(output).not.toContain('no priority set');
@@ -152,6 +151,8 @@ describe('handleOrderSubcommand', () => {
     });
 
     it('keeps the plain "no priority set" label and no drift when there are no residuals', async () => {
+      // Explicit below-minimum version on Plus to prove show is ungated on old binaries.
+      await configureBackend('plus', '6.6.105-0');
       writeAuthFile('claude-a.json', { email: 'a@x.com' });
       writeAuthFile('claude-b.json', { email: 'b@x.com' });
 
@@ -160,6 +161,7 @@ describe('handleOrderSubcommand', () => {
       registerAccount('claude', 'claude-b.json', 'b@x.com');
 
       await runOrderSubcommand(['claude']);
+      expect(process.exitCode).toBe(0);
 
       const output = lines.join('\n');
       expect(output).toContain('no priority set');
@@ -169,6 +171,8 @@ describe('handleOrderSubcommand', () => {
 
   describe('--reset clears residual priorities (proxy stopped -> direct write)', () => {
     it('removes the priority field from auth files and reports per-file results', async () => {
+      // Explicit below-minimum version to prove reset is ungated on old binaries.
+      await configureBackend('original', '6.6.105');
       writeAuthFile('claude-a.json', { email: 'a@x.com', priority: 4 });
       writeAuthFile('claude-b.json', { email: 'b@x.com' }); // already clear
 
@@ -178,6 +182,7 @@ describe('handleOrderSubcommand', () => {
       saveDrainOrderConfig('claude', { mode: 'manual', orderedIds: ['a@x.com', 'b@x.com'] });
 
       await runOrderSubcommand(['claude', '--reset']);
+      expect(process.exitCode).toBe(0);
 
       // Residual priority is actually gone from disk (not just config deleted).
       expect('priority' in readAuthFile('claude-a.json')).toBe(false);
@@ -190,12 +195,15 @@ describe('handleOrderSubcommand', () => {
     });
 
     it('reports already-clear files and still resets when no priorities exist', async () => {
+      // Explicit below-minimum version on Plus to prove reset is ungated on old binaries.
+      await configureBackend('plus', '6.6.105-0');
       writeAuthFile('claude-a.json', { email: 'a@x.com' });
 
       const { registerAccount } = await registerClaude();
       registerAccount('claude', 'claude-a.json', 'a@x.com');
 
       await runOrderSubcommand(['claude', '--reset']);
+      expect(process.exitCode).toBe(0);
 
       const output = lines.join('\n');
       expect(output).toContain('reset to file order');
