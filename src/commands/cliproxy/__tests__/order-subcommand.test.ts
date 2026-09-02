@@ -24,6 +24,7 @@ mock.module('../../../cliproxy/proxy/proxy-detector', () => ({
 describe('handleOrderSubcommand', () => {
   let tempHome: string;
   let originalCcsHome: string | undefined;
+  let originalNoColor: string | undefined;
   let logSpy: ReturnType<typeof spyOn>;
   let lines: string[];
 
@@ -35,7 +36,16 @@ describe('handleOrderSubcommand', () => {
     fs.mkdirSync(authDir(), { recursive: true, mode: 0o700 });
     fs.writeFileSync(
       path.join(authDir(), fileName),
-      JSON.stringify({ type: 'claude', ...fields }, null, 2),
+      JSON.stringify({ type: 'claude', email: fileName, ...fields }, null, 2),
+      { mode: 0o600 }
+    );
+  }
+
+  function writeAgyAuthFile(fileName: string, fields: Record<string, unknown> = {}): void {
+    fs.mkdirSync(authDir(), { recursive: true, mode: 0o700 });
+    fs.writeFileSync(
+      path.join(authDir(), fileName),
+      JSON.stringify({ type: 'antigravity', email: fileName, ...fields }, null, 2),
       { mode: 0o600 }
     );
   }
@@ -45,6 +55,24 @@ describe('handleOrderSubcommand', () => {
       string,
       unknown
     >;
+  }
+
+  async function loadRegistry() {
+    return import(`../../../cliproxy/accounts/registry?order-subcommand-reg=${Date.now()}`);
+  }
+
+  async function configureBackend(backend: 'original' | 'plus', version: string): Promise<void> {
+    const { mutateConfig, invalidateConfigCache } = await import(
+      '../../../config/config-loader-facade'
+    );
+    mutateConfig((cfg) => {
+      if (!cfg.cliproxy) cfg.cliproxy = {};
+      cfg.cliproxy.backend = backend;
+    });
+    invalidateConfigCache();
+    const verPath = path.join(tempHome, '.ccs', 'cliproxy', 'bin', backend, '.version');
+    fs.mkdirSync(path.dirname(verPath), { recursive: true });
+    fs.writeFileSync(verPath, version.trim() + '\n', 'utf-8');
   }
 
   async function registerClaude(): Promise<{
@@ -64,7 +92,9 @@ describe('handleOrderSubcommand', () => {
   beforeEach(() => {
     tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'ccs-order-subcommand-'));
     originalCcsHome = process.env.CCS_HOME;
+    originalNoColor = process.env.NO_COLOR;
     process.env.CCS_HOME = tempHome;
+    process.env.NO_COLOR = '1';
     process.exitCode = 0;
     lines = [];
     logSpy = spyOn(console, 'log').mockImplementation((msg?: unknown) => {
@@ -79,6 +109,11 @@ describe('handleOrderSubcommand', () => {
       process.env.CCS_HOME = originalCcsHome;
     } else {
       delete process.env.CCS_HOME;
+    }
+    if (originalNoColor !== undefined) {
+      process.env.NO_COLOR = originalNoColor;
+    } else {
+      delete process.env.NO_COLOR;
     }
     fs.rmSync(tempHome, { recursive: true, force: true });
   });
@@ -164,5 +199,126 @@ describe('handleOrderSubcommand', () => {
       expect(output).toContain('reset to file order');
       expect(output).toContain('no priority set');
     });
+});
+
+  describe('binary version capability gate (#1724)', () => {
+    const cases: Array<{
+      backend: 'original' | 'plus';
+      belowMinVersion: string;
+      atMinVersion: string;
+      backendLabel: string;
+      requiredMinVersion: string;
+    }> = [
+      {
+        backend: 'original',
+        belowMinVersion: '6.6.105',
+        atMinVersion: '6.6.106',
+        backendLabel: 'CLIProxy',
+        requiredMinVersion: '6.6.106',
+      },
+      {
+        backend: 'plus',
+        belowMinVersion: '6.6.105-0',
+        atMinVersion: '6.6.107-0',
+        backendLabel: 'CLIProxy Plus',
+        requiredMinVersion: '6.6.107-0',
+      },
+    ];
+
+    for (const { backend, belowMinVersion, atMinVersion, backendLabel, requiredMinVersion } of cases) {
+      describe(`${backend} backend`, () => {
+        it(`refuses --set below minimum version (${belowMinVersion}) without mutating files`, async () => {
+          await configureBackend(backend, belowMinVersion);
+          writeAuthFile('claude-a.json', { email: 'a@x.com' });
+          writeAuthFile('claude-b.json', { email: 'b@x.com' });
+
+          const { registerAccount, loadDrainOrderConfig } = await loadRegistry();
+          registerAccount('claude', 'claude-a.json', 'a@x.com');
+          registerAccount('claude', 'claude-b.json', 'b@x.com');
+
+          await runOrderSubcommand(['claude', '--set', 'a@x.com,b@x.com']);
+
+          expect(process.exitCode).toBe(1);
+          const output = lines.join('\n');
+          expect(output).toContain('[X]');
+          expect(output).toContain(
+            `${backendLabel} v${belowMinVersion} does not support drain-order priorities (requires v${requiredMinVersion} or newer).`
+          );
+          expect(output).toContain(
+            `Run 'ccs cliproxy --latest' to update, then restart with 'ccs cliproxy restart'.`
+          );
+          expect(output).not.toContain('Set priorities');
+          expect('priority' in readAuthFile('claude-a.json')).toBe(false);
+          expect('priority' in readAuthFile('claude-b.json')).toBe(false);
+          expect(loadDrainOrderConfig('claude')).toBeUndefined();
+        });
+
+        it(`refuses --by-tier below minimum version (${belowMinVersion}) without mutating files`, async () => {
+          await configureBackend(backend, belowMinVersion);
+          writeAgyAuthFile('antigravity-a.json', { email: 'a@x.com' });
+          writeAgyAuthFile('antigravity-b.json', { email: 'b@x.com' });
+
+          const { registerAccount, setAccountTier, loadDrainOrderConfig } = await loadRegistry();
+          registerAccount('agy', 'antigravity-a.json', 'a@x.com');
+          registerAccount('agy', 'antigravity-b.json', 'b@x.com');
+          setAccountTier('agy', 'a@x.com', 'pro');
+          setAccountTier('agy', 'b@x.com', 'free');
+
+          await runOrderSubcommand(['agy', '--by-tier']);
+
+          expect(process.exitCode).toBe(1);
+          const output = lines.join('\n');
+          expect(output).toContain('[X]');
+          expect(output).toContain(
+            `${backendLabel} v${belowMinVersion} does not support drain-order priorities (requires v${requiredMinVersion} or newer).`
+          );
+          expect(output).toContain(
+            `Run 'ccs cliproxy --latest' to update, then restart with 'ccs cliproxy restart'.`
+          );
+          expect(output).not.toContain('Set priorities');
+          expect('priority' in readAuthFile('antigravity-a.json')).toBe(false);
+          expect('priority' in readAuthFile('antigravity-b.json')).toBe(false);
+          expect(loadDrainOrderConfig('agy')).toBeUndefined();
+        });
+
+        it(`applies and persists --set at minimum version (${atMinVersion})`, async () => {
+          await configureBackend(backend, atMinVersion);
+          writeAuthFile('claude-a.json', { email: 'a@x.com' });
+          writeAuthFile('claude-b.json', { email: 'b@x.com' });
+
+          const { registerAccount, loadDrainOrderConfig } = await loadRegistry();
+          registerAccount('claude', 'claude-a.json', 'a@x.com');
+          registerAccount('claude', 'claude-b.json', 'b@x.com');
+
+          await runOrderSubcommand(['claude', '--set', 'a@x.com,b@x.com']);
+
+          expect(process.exitCode).toBe(0);
+          const output = lines.join('\n');
+          expect(output).toContain('Set priorities for 2 account(s).');
+          expect('priority' in readAuthFile('claude-a.json')).toBe(true);
+          expect(loadDrainOrderConfig('claude')?.mode).toBe('manual');
+        });
+
+        it(`applies and persists --by-tier at minimum version (${atMinVersion})`, async () => {
+          await configureBackend(backend, atMinVersion);
+          writeAgyAuthFile('antigravity-a.json', { email: 'a@x.com' });
+          writeAgyAuthFile('antigravity-b.json', { email: 'b@x.com' });
+
+          const { registerAccount, setAccountTier, loadDrainOrderConfig } = await loadRegistry();
+          registerAccount('agy', 'antigravity-a.json', 'a@x.com');
+          registerAccount('agy', 'antigravity-b.json', 'b@x.com');
+          setAccountTier('agy', 'a@x.com', 'pro');
+          setAccountTier('agy', 'b@x.com', 'free');
+
+          await runOrderSubcommand(['agy', '--by-tier']);
+
+          expect(process.exitCode).toBe(0);
+          const output = lines.join('\n');
+          expect(output).toContain('Set priorities for 2 account(s).');
+          expect('priority' in readAuthFile('antigravity-a.json')).toBe(true);
+          expect(loadDrainOrderConfig('agy')?.mode).toBe('tier');
+        });
+      });
+    }
   });
 });
