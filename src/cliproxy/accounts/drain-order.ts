@@ -40,10 +40,7 @@ export const DRAIN_ORDER_MIN_VERSION: CLIProxyBackendMinVersions = {
   plus: '6.6.107-0',
 };
 
-export function isDrainOrderSupported(
-  backend: CLIProxyBackend,
-  installedVersion: string
-): boolean {
+export function isDrainOrderSupported(backend: CLIProxyBackend, installedVersion: string): boolean {
   return meetsBackendMinimumVersion(installedVersion, backend, DRAIN_ORDER_MIN_VERSION);
 }
 

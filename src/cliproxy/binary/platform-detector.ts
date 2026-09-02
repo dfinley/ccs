@@ -124,10 +124,7 @@ function getReleaseArchForBackend(
   publicArch: SupportedArch,
   releaseArch: SupportedArch
 ): SupportedArch {
-  if (
-    publicArch === 'arm64' &&
-    !isAtLeastVersion(version, AARCH64_ASSET_MIN_VERSION[backend])
-  ) {
+  if (publicArch === 'arm64' && !isAtLeastVersion(version, AARCH64_ASSET_MIN_VERSION[backend])) {
     return 'arm64';
   }
 

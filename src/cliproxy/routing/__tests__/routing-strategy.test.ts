@@ -18,7 +18,8 @@ describe('cliproxy routing strategy service', () => {
   let binaryBackend: CLIProxyBackend = 'original';
   let binaryVersion = '7.2.127-7';
   let installedVersionQueriedBackend: CLIProxyBackend | undefined = undefined;
-  let loggedWarnings: Array<{ event: string; message: string; context?: Record<string, unknown> }> = [];
+  let loggedWarnings: Array<{ event: string; message: string; context?: Record<string, unknown> }> =
+    [];
   let responseFactory: (() => Promise<Response>) | null = null;
 
   beforeEach(async () => {

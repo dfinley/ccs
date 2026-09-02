@@ -95,11 +95,15 @@ describe('Backend Selection', () => {
     it('selects arm64 vs aarch64 release assets across original and plus boundaries', () => {
       // Original pre-rename boundaries (<= 6.9.47) use arm64
       for (const version of [undefined, '6.9.45', '6.9.47']) {
-        const effectiveVersion = version || platformDetector.BACKEND_CONFIG.original.fallbackVersion;
+        const effectiveVersion =
+          version || platformDetector.BACKEND_CONFIG.original.fallbackVersion;
         withMockedProcessPlatform('darwin', 'arm64', () => {
           const info = platformDetector.detectPlatform(version, 'original');
           assert.strictEqual(info.arch, 'arm64');
-          assert.strictEqual(info.binaryName, `CLIProxyAPI_${effectiveVersion}_darwin_arm64.tar.gz`);
+          assert.strictEqual(
+            info.binaryName,
+            `CLIProxyAPI_${effectiveVersion}_darwin_arm64.tar.gz`
+          );
           assert.strictEqual(
             platformDetector.getDownloadUrl(version, 'original'),
             `https://github.com/router-for-me/CLIProxyAPI/releases/download/v${effectiveVersion}/CLIProxyAPI_${effectiveVersion}_darwin_arm64.tar.gz`

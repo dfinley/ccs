@@ -19,6 +19,8 @@ import * as path from 'path';
 
 mock.module('../../../cliproxy/proxy/proxy-detector', () => ({
   detectRunningProxy: async () => ({ running: false, verified: false }),
+  waitForProxyHealthy: async () => ({ running: false, verified: false }),
+  reclaimOrphanedProxy: () => {},
 }));
 
 describe('handleOrderSubcommand', () => {
@@ -199,7 +201,7 @@ describe('handleOrderSubcommand', () => {
       expect(output).toContain('reset to file order');
       expect(output).toContain('no priority set');
     });
-});
+  });
 
   describe('binary version capability gate (#1724)', () => {
     const cases: Array<{
@@ -225,7 +227,13 @@ describe('handleOrderSubcommand', () => {
       },
     ];
 
-    for (const { backend, belowMinVersion, atMinVersion, backendLabel, requiredMinVersion } of cases) {
+    for (const {
+      backend,
+      belowMinVersion,
+      atMinVersion,
+      backendLabel,
+      requiredMinVersion,
+    } of cases) {
       describe(`${backend} backend`, () => {
         it(`refuses --set below minimum version (${belowMinVersion}) without mutating files`, async () => {
           await configureBackend(backend, belowMinVersion);
