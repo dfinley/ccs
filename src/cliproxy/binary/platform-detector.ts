@@ -84,7 +84,10 @@ const RELEASE_ARCH_MAP: Record<SupportedArch, SupportedArch> = {
 };
 
 const PLUS_NO_PLUGIN_ASSET_MIN_VERSION = '7.1.68-0';
-const PLUS_AARCH64_ASSET_MIN_VERSION = '7.1.45-1';
+const AARCH64_ASSET_MIN_VERSION: Readonly<Record<CLIProxyBackend, string>> = {
+  original: '6.9.48',
+  plus: '6.10.0-0',
+};
 
 export function mapNodeArchToReleaseArch(nodeArch: string): SupportedArch | undefined {
   const arch = ARCH_MAP[nodeArch];
@@ -122,9 +125,8 @@ function getReleaseArchForBackend(
   releaseArch: SupportedArch
 ): SupportedArch {
   if (
-    backend === 'plus' &&
     publicArch === 'arm64' &&
-    !isAtLeastVersion(version, PLUS_AARCH64_ASSET_MIN_VERSION)
+    !isAtLeastVersion(version, AARCH64_ASSET_MIN_VERSION[backend])
   ) {
     return 'arm64';
   }
