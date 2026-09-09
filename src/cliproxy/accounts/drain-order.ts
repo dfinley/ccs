@@ -21,10 +21,28 @@ import {
 } from '../proxy/proxy-target-resolver';
 import { loadDrainOrderConfig } from './registry';
 import type { AccountTier } from './types';
-import type { CLIProxyProvider } from '../types';
+import type { CLIProxyBackend, CLIProxyProvider } from '../types';
+import {
+  type CLIProxyBackendMinVersions,
+  meetsBackendMinimumVersion,
+} from '../binary/version-checker';
 
 /** Minimum valid priority value. Management layer treats 0 as delete. */
 export const MIN_PRIORITY = 1;
+
+/**
+ * Minimum CLIProxy version that supports drain-order priority selection.
+ * Original: v6.6.106
+ * Plus: v6.6.107-0
+ */
+export const DRAIN_ORDER_MIN_VERSION: CLIProxyBackendMinVersions = {
+  original: '6.6.106',
+  plus: '6.6.107-0',
+};
+
+export function isDrainOrderSupported(backend: CLIProxyBackend, installedVersion: string): boolean {
+  return meetsBackendMinimumVersion(installedVersion, backend, DRAIN_ORDER_MIN_VERSION);
+}
 
 /** Management API path for patching auth file fields */
 const AUTH_FILES_FIELDS_PATH = '/v0/management/auth-files/fields';

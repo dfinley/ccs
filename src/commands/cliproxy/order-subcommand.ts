@@ -12,6 +12,7 @@ import { initUI, header, subheader, color, dim, ok, fail, warn, info } from '../
 import { extractOption, hasAnyFlag } from '../arg-extractor';
 import { saveDrainOrderConfig, clearDrainOrderConfig } from '../../cliproxy/accounts/registry';
 import { getProviderAccounts } from '../../cliproxy/accounts/query';
+import { getConfiguredBackend, getInstalledCliproxyVersion } from '../../cliproxy/binary-manager';
 import {
   computeManualDrainOrder,
   computeTierDrainOrder,
@@ -19,6 +20,8 @@ import {
   resolveEffectiveDrainOrder,
   clearDrainOrderPriorities,
   tieBreakKey,
+  DRAIN_ORDER_MIN_VERSION,
+  isDrainOrderSupported,
   type DrainOrderEntry,
   type DrainOrderInput,
 } from '../../cliproxy/accounts/drain-order';
@@ -43,6 +46,27 @@ function formatTierLabel(tier: AccountTier | undefined, tierDerived: boolean): s
   const label =
     tier === 'ultra' ? color(tier, 'success') : tier === 'pro' ? color(tier, 'info') : dim(tier);
   return tierDerived ? label : dim(tier);
+}
+
+function ensureDrainOrderBinarySupport(): boolean {
+  const backend = getConfiguredBackend();
+  const installedVersion = getInstalledCliproxyVersion(backend);
+  if (!isDrainOrderSupported(backend, installedVersion)) {
+    const minimumVersion = DRAIN_ORDER_MIN_VERSION[backend];
+    const backendLabel = backend === 'plus' ? 'CLIProxy Plus' : 'CLIProxy';
+    console.log(
+      fail(
+        `${backendLabel} v${installedVersion} does not support drain-order priorities (requires v${minimumVersion} or newer).`
+      )
+    );
+    console.log(
+      info(`Run 'ccs cliproxy --latest' to update, then restart with 'ccs cliproxy restart'.`)
+    );
+    console.log('');
+    process.exitCode = 1;
+    return false;
+  }
+  return true;
 }
 
 function printOrderTable(
@@ -281,6 +305,9 @@ async function handleOrderByTier(provider: CLIProxyProvider): Promise<void> {
 
   const entries = computeTierDrainOrder(accounts);
 
+  if (!ensureDrainOrderBinarySupport()) {
+    return;
+  }
   console.log(subheader('Computed tier-based drain order:'));
   printOrderTable(entries, false);
   console.log('');
@@ -401,6 +428,10 @@ async function handleOrderSet(provider: CLIProxyProvider, setArg: string): Promi
     console.log(fail(`${(err as Error).message}`));
     console.log('');
     process.exitCode = 1;
+    return;
+  }
+
+  if (!ensureDrainOrderBinarySupport()) {
     return;
   }
 

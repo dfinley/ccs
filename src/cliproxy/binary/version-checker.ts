@@ -21,6 +21,8 @@ import {
 } from '../binary/platform-detector';
 import type { CLIProxyBackend } from '../types';
 
+export type CLIProxyBackendMinVersions = Readonly<Record<CLIProxyBackend, string>>;
+
 interface FetchLatestVersionDeps {
   fetchJsonFn?: typeof fetchJson;
 }
@@ -76,6 +78,14 @@ export function compareCliproxyVersions(a: string, b: string): number {
  */
 export function isNewerVersion(latest: string, current: string): boolean {
   return compareCliproxyVersions(latest, current) > 0;
+}
+
+export function meetsBackendMinimumVersion(
+  installedVersion: string,
+  backend: CLIProxyBackend,
+  minimumByBackend: CLIProxyBackendMinVersions
+): boolean {
+  return compareCliproxyVersions(installedVersion, minimumByBackend[backend]) >= 0;
 }
 
 /**
