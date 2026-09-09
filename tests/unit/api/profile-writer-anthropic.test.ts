@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { createApiProfile } from '../../../src/api/services/profile-writer';
+import { getPresetById } from '../../../src/api/services/provider-presets';
 
 describe('profile-writer Anthropic direct', () => {
   let tempHome = '';
@@ -131,10 +132,14 @@ describe('profile-writer Anthropic direct', () => {
     expect(config.profile_targets?.['hf-target-claude']).toBeUndefined();
   });
 
-  it('preserves OpenRouter ANTHROPIC_API_KEY blank behavior', () => {
+  it('preserves OpenRouter ANTHROPIC_API_KEY blank behavior and resolves preset baseUrl without duplicating /v1 (#1728)', () => {
+    const preset = getPresetById('openrouter');
+    expect(preset).toBeDefined();
+    expect(preset?.baseUrl).toBe('https://openrouter.ai/api');
+
     const result = createApiProfile(
       'openrouter-test',
-      'https://openrouter.ai/api',
+      preset!.baseUrl,
       'sk-or-testkey',
       { default: 'anthropic/claude-opus-4.5', opus: 'anthropic/claude-opus-4.5', sonnet: 'anthropic/claude-opus-4.5', haiku: 'anthropic/claude-opus-4.5' }
     );
@@ -144,8 +149,9 @@ describe('profile-writer Anthropic direct', () => {
     const settingsPath = path.join(tempHome, '.ccs', 'openrouter-test.settings.json');
     const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
-    // OpenRouter: proxy mode with ANTHROPIC_API_KEY explicitly blank
+    // OpenRouter: proxy mode with ANTHROPIC_API_KEY explicitly blank and baseUrl without /v1
     expect(settings.env.ANTHROPIC_BASE_URL).toBe('https://openrouter.ai/api');
+    expect(`${settings.env.ANTHROPIC_BASE_URL}/v1/messages`).toBe('https://openrouter.ai/api/v1/messages');
     expect(settings.env.ANTHROPIC_AUTH_TOKEN).toBe('sk-or-testkey');
     expect(settings.env.ANTHROPIC_API_KEY).toBe('');
   });

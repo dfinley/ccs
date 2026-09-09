@@ -1,8 +1,6 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'fs';
-import { tmpdir } from 'os';
-import { join, resolve } from 'path';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 import { describe, expect, it } from 'bun:test';
-import { createApiProfile } from '../../../src/api/services/profile-writer';
 import {
   PROVIDER_PRESETS,
   getPresetById,
@@ -121,38 +119,6 @@ describe('provider-presets', () => {
     const finalEndpoint = `${preset?.baseUrl}/v1/messages`;
     expect(finalEndpoint).toBe('https://openrouter.ai/api/v1/messages');
     expect(finalEndpoint).not.toContain('/v1/v1/');
-  });
-
-  it('generates an OpenRouter profile whose ANTHROPIC_BASE_URL does not duplicate /v1 (#1728)', () => {
-    const preset = getPresetById('openrouter');
-    expect(preset).toBeDefined();
-    const tempHome = mkdtempSync(join(tmpdir(), 'ccs-openrouter-tdd-'));
-    const prevCcsHome = process.env.CCS_HOME;
-    process.env.CCS_HOME = tempHome;
-    try {
-      const result = createApiProfile(
-        'openrouter-tdd',
-        preset!.baseUrl,
-        'sk-or-test-key',
-        {
-          default: preset!.defaultModel,
-          opus: preset!.defaultModel,
-          sonnet: preset!.defaultModel,
-          haiku: preset!.defaultModel,
-        }
-      );
-      expect(result.success).toBe(true);
-      const settings = JSON.parse(
-        readFileSync(join(tempHome, '.ccs', 'openrouter-tdd.settings.json'), 'utf8')
-      );
-      expect(settings.env.ANTHROPIC_BASE_URL).toBe('https://openrouter.ai/api');
-      expect(`${settings.env.ANTHROPIC_BASE_URL}/v1/messages`).toBe(
-        'https://openrouter.ai/api/v1/messages'
-      );
-    } finally {
-      process.env.CCS_HOME = prevCcsHome;
-      rmSync(tempHome, { recursive: true, force: true });
-    }
   });
 
   it('keeps Anthropic direct last in the recommended preset order and reuses the Claude logo', () => {
