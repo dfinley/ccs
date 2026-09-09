@@ -113,9 +113,12 @@ describe('provider-presets', () => {
     expect(isValidPresetId('te')).toBe(true);
   });
 
-  it('uses OpenRouter v1 as the OpenAI-compatible API root', () => {
+  it('uses OpenRouter /api (without /v1) as the Anthropic-compatible API root to avoid double /v1 404 in Claude Code (#1728)', () => {
     const preset = getPresetById('openrouter');
-    expect(preset?.baseUrl).toBe('https://openrouter.ai/api/v1');
+    expect(preset?.baseUrl).toBe('https://openrouter.ai/api');
+    const finalEndpoint = `${preset?.baseUrl}/v1/messages`;
+    expect(finalEndpoint).toBe('https://openrouter.ai/api/v1/messages');
+    expect(finalEndpoint).not.toContain('/v1/v1/');
   });
 
   it('keeps Anthropic direct last in the recommended preset order and reuses the Claude logo', () => {
