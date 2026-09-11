@@ -1,3 +1,67 @@
+## [8.10.0](https://github.com/kaitranntt/ccs/compare/v8.9.0...v8.10.0) (2026-09-11)
+
+### Features
+
+* **api:** add OrcaRouter provider preset ([ea7906b](https://github.com/kaitranntt/ccs/commit/ea7906b97580533c158e09ff8777f7c66d248ac6))
+* **cliproxy:** add Grok 4.6 selection ([c30e9ca](https://github.com/kaitranntt/ccs/commit/c30e9ca6179d584174622dce971b05e664ad98f7))
+* **cliproxy:** add meetsBackendMinimumVersion comparator helper ([3658c01](https://github.com/kaitranntt/ccs/commit/3658c0113729514dc660af99ade379644c57186d))
+* **cliproxy:** clarify quota percentages are remaining in CLI output ([eca266a](https://github.com/kaitranntt/ccs/commit/eca266ad30851040f0605ae03ec6d5571032e90b)), closes [#1714](https://github.com/kaitranntt/ccs/issues/1714)
+* **dashboard:** collapse the CLIProxy status widget ([fde7bd8](https://github.com/kaitranntt/ccs/commit/fde7bd83db96ce4fa87cb3b5403a7ab51c4ccde9))
+* **models:** add Claude Fable 5.1 and correct Sonnet 5 pricing ([3583b54](https://github.com/kaitranntt/ccs/commit/3583b544d01170d0352a49f3e4bfc8b5ecd2c953))
+
+### Bug Fixes
+
+* **ci:** publish dev releases with public access for scoped package ([#1715](https://github.com/kaitranntt/ccs/issues/1715)) ([ae1559a](https://github.com/kaitranntt/ccs/commit/ae1559aeb01d466787026bdabff0c24d58895bd0))
+* **cliproxy:** correct ARM release asset architecture boundaries ([#1725](https://github.com/kaitranntt/ccs/issues/1725)) ([87f1d9b](https://github.com/kaitranntt/ccs/commit/87f1d9b4e874f63a61d337357796db8e27a4f18f))
+* **cliproxy:** correct pool routing version capability map ([#1726](https://github.com/kaitranntt/ccs/issues/1726)) ([b9601cb](https://github.com/kaitranntt/ccs/commit/b9601cb913dce355e2a5f3347500efe024e79974))
+* **cliproxy:** fail-closed on unsupported drain-order priority selection ([#1724](https://github.com/kaitranntt/ccs/issues/1724)) ([ed1badc](https://github.com/kaitranntt/ccs/commit/ed1badcfcb90f6e096ec06f28c27fecd270c0239))
+* **cliproxy:** finish concurrent update recovery ([fc56eca](https://github.com/kaitranntt/ccs/commit/fc56ecaac4ed8218f5d0408a6c78f173a11a78da))
+* **cliproxy:** harden update recovery paths ([4502e5d](https://github.com/kaitranntt/ccs/commit/4502e5d503b4ae73dda6187d9044263364019565))
+* **cliproxy:** keep proxy available during updates ([8e4def4](https://github.com/kaitranntt/ccs/commit/8e4def4713a9932c7b741e9bf791ee9904d4d695))
+* **cliproxy:** make formatQuotaBar pure ASCII and add doctor quota tests ([745cb74](https://github.com/kaitranntt/ccs/commit/745cb743181362372fd5f89d20e67ea10cc4ed89))
+* **delegation:** flush stdout before exit to prevent piped output truncation ([3e49834](https://github.com/kaitranntt/ccs/commit/3e49834c9daa0a965316a1c26bbb9df7e0b09908))
+* **docker:** target live cliproxy compose stack ([54c3e86](https://github.com/kaitranntt/ccs/commit/54c3e86e894fe6563a4e944709b1dae65bbf360b))
+* **docs:** format star history chart with valid sealed_token url ([03ff7d8](https://github.com/kaitranntt/ccs/commit/03ff7d840001d504642c2fa25dc0c29d661be2fd))
+* **docs:** format star history chart with valid sealed_token url ([0598d2a](https://github.com/kaitranntt/ccs/commit/0598d2a7ba3fd2d8d0e09b825f9000d66c2e6f08))
+* **docs:** update star history chart with encrypted sealed_token ([eadcef2](https://github.com/kaitranntt/ccs/commit/eadcef22897859ae89596d675296fa974df91e03))
+* **docs:** update star history chart with encrypted sealed_token ([583d0cf](https://github.com/kaitranntt/ccs/commit/583d0cf8fca901885beeb10c5e9b379430e5a070))
+* **extended-context:** manage ANTHROPIC_DEFAULT_MODEL and keep the overlay in sync ([7ae7a5e](https://github.com/kaitranntt/ccs/commit/7ae7a5eba6c75871f6822567079d841d9cd73789))
+* **extended-context:** never write [1m] into the Fable tier key ([2b780ce](https://github.com/kaitranntt/ccs/commit/2b780ceae3bcc5a4cbaf809601e6d50fef1ae15b))
+* **extended-context:** suffix the Fable tier and default it on 1M launches ([02c45e0](https://github.com/kaitranntt/ccs/commit/02c45e088a841fe9a8d6192743f18a8f99cd2724))
+* **image-analysis:** honor configured profile_backends at launch ([fe3447f](https://github.com/kaitranntt/ccs/commit/fe3447f4871c4b53c2bf0f2f9e9cba9d057002bf))
+* **image-analysis:** route original backend at CLIProxy root ([afa663b](https://github.com/kaitranntt/ccs/commit/afa663b5b2f999b19bef14a208044e02e8b3c122)), closes [#1703](https://github.com/kaitranntt/ccs/issues/1703)
+* **openrouter:** use /api endpoint root to prevent duplicated /v1 ([#1728](https://github.com/kaitranntt/ccs/issues/1728)) ([375a346](https://github.com/kaitranntt/ccs/commit/375a3468b8c5de1ad9af963db5abb285feaffc94))
+* **README:** update star history chart to use working domain ([6e3a16b](https://github.com/kaitranntt/ccs/commit/6e3a16b84c7eb50357da426f350b7711cb4694cd))
+* **shared-manager:** publish adopted settings by replacement ([00a4dce](https://github.com/kaitranntt/ccs/commit/00a4dceb94a5a21d740e7e7d057c6a1b7398d8ee))
+* **update:** detect pnpm v9+ global store layouts ([c43cd6c](https://github.com/kaitranntt/ccs/commit/c43cd6caf5002514d8c9d7e3ff7da2a2ce61253c)), closes [#1706](https://github.com/kaitranntt/ccs/issues/1706)
+* **websearch:** filter disabled legacy CLI probes and skip unused version fetching ([f491169](https://github.com/kaitranntt/ccs/commit/f4911694e37aaa97dbdfefac0b0f712c4e81e435)), closes [#1716](https://github.com/kaitranntt/ccs/issues/1716)
+* **websearch:** format status.ts ([c0c3699](https://github.com/kaitranntt/ccs/commit/c0c36991d650cd4129ea1a910f0a3ad012373064))
+
+### Documentation
+
+* **docker:** document host continuity ([ee891bd](https://github.com/kaitranntt/ccs/commit/ee891bdd0edcdda0faa658cf6d28acd352b5c3c1))
+* refresh hardening inventory after [#1727](https://github.com/kaitranntt/ccs/issues/1727) ([247c033](https://github.com/kaitranntt/ccs/commit/247c0336c7f91cb143531eeff97da748d4457092))
+* refresh hardening inventory after dev merge ([8cb3451](https://github.com/kaitranntt/ccs/commit/8cb3451f8153af3be6b855f3651d925efeb4e1de))
+* refresh hardening inventory after merge ([a4281ce](https://github.com/kaitranntt/ccs/commit/a4281cea1b0bc090123087d154b294e9d69124cd))
+* refresh hardening inventory and add 75% quota test ([eddc404](https://github.com/kaitranntt/ccs/commit/eddc404f2499b73acd96a8ec3b6d52c52916e05a))
+* refresh hardening inventory counts ([b9190a6](https://github.com/kaitranntt/ccs/commit/b9190a6e57708f576a5c322f3d12e470eb9d6b36))
+* **shared-manager:** note why the CAS mismatch raises EEXIST ([4a17f03](https://github.com/kaitranntt/ccs/commit/4a17f034e24f1bcbed3067166e184e933cf17746))
+
+### Code Refactoring
+
+* **shared-manager:** extract the durable temp write ([df52662](https://github.com/kaitranntt/ccs/commit/df52662a59517c495ea21056055c5d65ba1ba813))
+* **shared-manager:** tighten canonical identity capture ([fa3fd8e](https://github.com/kaitranntt/ccs/commit/fa3fd8eb3a7c76781defe61771d9f8f3418f2a3e))
+
+### Tests
+
+* **cliproxy:** strengthen fallback download url and ungated show/reset coverage ([fcbac62](https://github.com/kaitranntt/ccs/commit/fcbac629d277c9fc65f81817ca70108fdc88c062))
+* **openrouter:** refine regression test using existing profile-writer harness ([#1728](https://github.com/kaitranntt/ccs/issues/1728)) ([283e884](https://github.com/kaitranntt/ccs/commit/283e8843ac624377bc6422a2e704724baf8a5e07))
+
+### CI
+
+* **docker:** allow cold-start healthcheck window ([78ad297](https://github.com/kaitranntt/ccs/commit/78ad297e30f0e80906af1a92db73d43f47cf9a91))
+* merge main Docker smoke fix into dev ([8ae7dd8](https://github.com/kaitranntt/ccs/commit/8ae7dd88f3c9fefa1e31173ef46374e62282a491))
+
 ## [8.9.0](https://github.com/kaitranntt/ccs/compare/v8.8.1...v8.9.0) (2026-08-09)
 
 ### Features
