@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-
+import type { CLIProxyBackend } from '../../types';
 describe('cliproxy routing strategy service', () => {
   let tempHome = '';
   let scopedConfigDir = '';
@@ -15,6 +15,11 @@ describe('cliproxy routing strategy service', () => {
     protocol: 'http' as const,
     isRemote: false,
   };
+  let binaryBackend: CLIProxyBackend = 'original';
+  let binaryVersion = '7.2.127-7';
+  let installedVersionQueriedBackend: CLIProxyBackend | undefined = undefined;
+  let loggedWarnings: Array<{ event: string; message: string; context?: Record<string, unknown> }> =
+    [];
   let responseFactory: (() => Promise<Response>) | null = null;
 
   beforeEach(async () => {
@@ -28,6 +33,10 @@ describe('cliproxy routing strategy service', () => {
     };
     responseFactory = null;
     originalCcsDir = process.env.CCS_DIR;
+    binaryBackend = 'original';
+    binaryVersion = '7.2.127-7';
+    installedVersionQueriedBackend = undefined;
+    loggedWarnings = [];
     originalCcsHome = process.env.CCS_HOME;
     process.env.CCS_DIR = scopedConfigDir;
     process.env.CCS_HOME = tempHome;
@@ -72,6 +81,26 @@ describe('cliproxy routing strategy service', () => {
         const body = (await response.json().catch(() => null)) as { error?: string } | null;
         return body?.error || fallback;
       },
+    }));
+
+    mock.module('../../binary-manager', () => ({
+      getConfiguredBackend: () => binaryBackend,
+      getInstalledCliproxyVersion: (backend?: CLIProxyBackend) => {
+        installedVersionQueriedBackend = backend;
+        return binaryVersion;
+      },
+    }));
+
+    mock.module('../../../services/logging', () => ({
+      createLogger: () => ({
+        debug: () => {},
+        info: () => {},
+        warn: (event: string, message: string, context?: Record<string, unknown>) => {
+          loggedWarnings.push({ event, message, context });
+        },
+        error: () => {},
+        child: () => ({ warn: () => {} }),
+      }),
     }));
 
     return import(`../routing-strategy?test=${Date.now()}-${Math.random()}`);
@@ -363,6 +392,67 @@ describe('cliproxy routing strategy service', () => {
       const mod = await loadRoutingModule();
       const result = await mod.applyCliproxyRoutingStrategy('fill-first');
       expect(result.message).not.toContain('Pool routing is active');
+    });
+  });
+
+  describe('pool routing version compatibility (#1726)', () => {
+    it('defines backend-specific minimum versions for pool routing', async () => {
+      const mod = await loadRoutingModule();
+      expect(mod.POOL_ROUTING_MIN_VERSION).toEqual({
+        original: '6.8.34',
+        plus: '6.8.34-0',
+      });
+    });
+
+    it('evaluates isPoolRoutingSupported correctly across original and plus thresholds', async () => {
+      const mod = await loadRoutingModule();
+      expect(mod.isPoolRoutingSupported('original', '6.8.33')).toBe(false);
+      expect(mod.isPoolRoutingSupported('original', '6.8.34')).toBe(true);
+      expect(mod.isPoolRoutingSupported('original', '6.9.0')).toBe(true);
+
+      expect(mod.isPoolRoutingSupported('plus', '6.8.33-9')).toBe(false);
+      expect(mod.isPoolRoutingSupported('plus', '6.8.34-0')).toBe(true);
+      expect(mod.isPoolRoutingSupported('plus', '7.2.127-7')).toBe(true);
+
+      expect(mod.isPoolRoutingSupported('original', '')).toBe(false);
+      expect(mod.isPoolRoutingSupported('plus', 'not-a-version')).toBe(false);
+    });
+
+    it('warns with backend-specific metadata when plus binary is below minimum', async () => {
+      await withScopedConfig(async () => {
+        binaryBackend = 'plus';
+        binaryVersion = '6.8.33-9';
+        loggedWarnings = [];
+
+        const mod = await loadRoutingModule();
+        const result = mod.enablePoolRouting(8317);
+
+        expect(result.changed).toBe(true);
+        expect(installedVersionQueriedBackend).toBe('plus');
+        expect(loggedWarnings).toHaveLength(1);
+        expect(loggedWarnings[0].event).toBe('pool_routing.binary_below_minimum');
+        expect(loggedWarnings[0].message).toContain('CLIProxy Plus');
+        expect(loggedWarnings[0].context).toEqual({
+          backend: 'plus',
+          installedVersion: '6.8.33-9',
+          minimumVersion: '6.8.34-0',
+        });
+      });
+    });
+
+    it('does not warn when plus binary meets the minimum version', async () => {
+      await withScopedConfig(async () => {
+        binaryBackend = 'plus';
+        binaryVersion = '6.8.34-0';
+        loggedWarnings = [];
+
+        const mod = await loadRoutingModule();
+        const result = mod.enablePoolRouting(8317);
+
+        expect(result.changed).toBe(true);
+        expect(installedVersionQueriedBackend).toBe('plus');
+        expect(loggedWarnings).toHaveLength(0);
+      });
     });
   });
 });

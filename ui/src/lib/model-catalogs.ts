@@ -399,6 +399,13 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         },
       },
       {
+        id: 'grok-4.6',
+        name: 'Grok 4.6',
+        description:
+          "SpaceXAI's smartest model built for long-running agents, interactive and visual work.",
+        reasoningLevels: ['low', 'medium', 'high', 'xhigh'],
+      },
+      {
         id: 'grok-4.5',
         name: 'Grok 4.5',
         description: 'Frontier model for coding, engineering, and agentic workflows',
@@ -971,9 +978,21 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         },
       },
       {
+        id: 'claude-fable-5-1',
+        name: 'Claude Fable 5.1',
+        description: 'Most powerful model',
+        extendedContext: true,
+        presetMapping: {
+          default: 'claude-fable-5-1',
+          opus: 'claude-fable-5-1',
+          sonnet: 'claude-sonnet-5',
+          haiku: 'claude-haiku-4-5-20251001',
+        },
+      },
+      {
         id: 'claude-fable-5',
         name: 'Claude Fable 5',
-        description: 'Most powerful model',
+        description: 'Previous most powerful model',
         extendedContext: true,
         presetMapping: {
           default: 'claude-fable-5',

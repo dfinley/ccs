@@ -1,6 +1,6 @@
 {
   "name": "@kaitranntt/ccs",
-  "version": "8.9.0",
+  "version": "8.9.0-dev.11",
   "description": "Claude Codex Switch - Instant profile switching between Claude, GLM, Kimi, and more",
   "keywords": [
     "cli",
@@ -19,6 +19,9 @@
     "url": "git+https://github.com/kaitranntt/ccs.git"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "author": {
     "name": "Tam Nhu Tran (Kai)",
     "email": "kaitranntt@users.noreply.github.com"
