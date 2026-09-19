@@ -23,6 +23,8 @@ export interface CliproxyUsageHistoryDetail {
   provider?: string;
   /** CLIProxy account email/id derived from auth_index lookup. Populated when an accountMap is supplied. */
   accountId?: string;
+  /** Opaque SHA-256 client-key fingerprint, independent of upstream accountId. */
+  clientKeyId?: string;
   timestamp: string;
   inputTokens: number;
   outputTokens: number;
@@ -84,6 +86,7 @@ function createHistoryDetail(
     model,
     provider: pricingProvider,
     ...(accountId !== undefined && { accountId }),
+    ...(detail.client_key_id && { clientKeyId: detail.client_key_id }),
     timestamp: detail.timestamp,
     inputTokens,
     outputTokens,
@@ -171,10 +174,16 @@ export function normalizeCliproxyUsageHistoryDetail(
       ? candidate.accountId
       : undefined;
 
+  const clientKeyId =
+    typeof candidate.clientKeyId === 'string' && /^[a-f0-9]{64}$/.test(candidate.clientKeyId)
+      ? candidate.clientKeyId
+      : undefined;
+
   return {
     model: candidate.model,
     ...(provider && { provider }),
     ...(accountId !== undefined && { accountId }),
+    ...(clientKeyId && { clientKeyId }),
     timestamp: candidate.timestamp,
     inputTokens,
     outputTokens,
@@ -236,6 +245,7 @@ function sanitizeHistoryDetail(detail: CliproxyUsageHistoryDetail): CliproxyUsag
     model: detail.model,
     ...(detail.provider && { provider: detail.provider }),
     ...(detail.accountId !== undefined && { accountId: detail.accountId }),
+    ...(detail.clientKeyId && { clientKeyId: detail.clientKeyId }),
     timestamp: detail.timestamp,
     inputTokens: detail.inputTokens,
     outputTokens: detail.outputTokens,
@@ -250,6 +260,7 @@ function createHistorySignature(detail: CliproxyUsageHistoryDetail): string {
   return [
     detail.model,
     detail.provider ?? '',
+    detail.clientKeyId ?? '',
     detail.timestamp,
     detail.inputTokens,
     detail.outputTokens,
@@ -262,6 +273,7 @@ function createHistorySignature(detail: CliproxyUsageHistoryDetail): string {
 function createProviderlessHistorySignature(detail: CliproxyUsageHistoryDetail): string {
   return [
     detail.model,
+    detail.clientKeyId ?? '',
     detail.timestamp,
     detail.inputTokens,
     detail.outputTokens,

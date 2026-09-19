@@ -82,6 +82,8 @@ export interface CliproxyRequestDetail {
   source: string;
   auth_index: string | number;
   request_id?: string;
+  /** SHA-256 of the inbound client key; never the provider credential or raw key. */
+  client_key_id?: string;
   tokens: {
     input_tokens: number;
     output_tokens: number;

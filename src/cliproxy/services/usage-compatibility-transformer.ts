@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import type { CliproxyRequestDetail, CliproxyUsageApiResponse } from './stats-fetcher';
 
 interface CliproxyUsageQueueRecord {
@@ -8,6 +9,7 @@ interface CliproxyUsageQueueRecord {
   source?: string;
   auth_index?: string | number;
   request_id?: string;
+  client_key_id?: string;
   tokens?: Partial<CliproxyRequestDetail['tokens']>;
   failed?: boolean;
 }
@@ -77,6 +79,9 @@ function normalizeQueueRecord(record: unknown): CliproxyUsageQueueRecord | null 
   const provider = asString(raw.provider, 'unknown');
   const model = asString(raw.model, asString(raw.alias, 'unknown'));
   const source = asString(raw.source, 'unknown');
+  // Hash at the ingestion boundary: analytics must not retain bearer credentials.
+  const clientKey = asString(raw.api_key, '');
+  const clientKeyId = clientKey ? createHash('sha256').update(clientKey).digest('hex') : undefined;
   const authIndex =
     typeof raw.auth_index === 'string' || typeof raw.auth_index === 'number'
       ? raw.auth_index
@@ -90,6 +95,7 @@ function normalizeQueueRecord(record: unknown): CliproxyUsageQueueRecord | null 
     source,
     auth_index: authIndex,
     request_id: asString(raw.request_id, ''),
+    ...(clientKeyId && { client_key_id: clientKeyId }),
     tokens: normalizeTokens(raw.tokens),
     failed: asBoolean(raw.failed),
   };
@@ -148,6 +154,7 @@ function createDetailSignature(
     provider,
     model,
     detail.request_id?.trim() ?? '',
+    detail.client_key_id ?? '',
     detail.timestamp,
     detail.source,
     String(detail.auth_index),
@@ -197,6 +204,7 @@ export function buildUsageResponseFromQueueRecords(records: unknown[]): Cliproxy
       source: record.source ?? 'unknown',
       auth_index: record.auth_index ?? record.source ?? 'unknown',
       request_id: record.request_id || undefined,
+      ...(record.client_key_id && { client_key_id: record.client_key_id }),
       tokens: normalizeTokens(record.tokens),
       failed: record.failed === true,
     });
@@ -274,6 +282,7 @@ function createMissingDetailMergeKey(
     provider,
     model,
     detail.request_id?.trim() ?? '',
+    detail.client_key_id ?? '',
     detail.timestamp,
     detail.source?.trim() ?? '',
     String(detail.auth_index ?? '').trim(),
