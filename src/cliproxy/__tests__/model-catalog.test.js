@@ -336,6 +336,18 @@ describe('Model Catalog', () => {
       });
       assert.deepStrictEqual(astra.codexServiceTiers, ['fast']);
     });
+    it('includes Sol with 272k context, max effort level, and fast mode', () => {
+      const sol = modelCatalog.MODEL_CATALOG.codex.models.find((m) => m.id === 'gpt-5.6-sol');
+      assert(sol, 'Should include GPT-5.6 Sol');
+      assert.strictEqual(sol.contextWindow, 272000);
+      assert.deepStrictEqual(sol.thinking, {
+        type: 'levels',
+        levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+        maxLevel: 'max',
+        dynamicAllowed: false,
+      });
+      assert.deepStrictEqual(sol.codexServiceTiers, ['fast']);
+    });
 
     it('has correct default model', () => {
       const { MODEL_CATALOG } = modelCatalog;

@@ -16,8 +16,7 @@ describe('applyClaudeAutoCompactWindow', () => {
       },
       'codex'
     );
-
-    expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe('372000');
+    expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe('272000');
   });
 
   it('uses the selected provider when the same model family exists in multiple catalogs', () => {
@@ -76,7 +75,7 @@ describe('applyClaudeAutoCompactWindow', () => {
     );
 
     expect(env.claude_code_auto_compact_window).toBe('123456');
-    expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe('372000');
+    expect(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW).toBe('272000');
   });
 });
 
