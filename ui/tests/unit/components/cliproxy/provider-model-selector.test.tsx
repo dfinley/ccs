@@ -196,11 +196,11 @@ describe('FlexibleModelSelector', () => {
     expect(screen.getByText('gpt-5.6-terra-xhigh')).toBeInTheDocument();
     expect(screen.getByText('gpt-5.6-luna-fast')).toBeInTheDocument();
     expect(screen.queryByText('gpt-5.6-sol-minimal')).not.toBeInTheDocument();
-    for (const suffix of ['', '-low', '-medium', '-high', '-xhigh']) {
+    for (const suffix of ['', '-low', '-medium', '-high', '-xhigh', '-max']) {
       expect(screen.getByText(`gpt-6-astra${suffix}`)).toBeInTheDocument();
       expect(screen.getByText(`gpt-6-astra${suffix}-fast`)).toBeInTheDocument();
     }
-    for (const effort of ['minimal', 'max', 'ultra']) {
+    for (const effort of ['minimal', 'ultra']) {
       expect(screen.queryByText(`gpt-6-astra-${effort}`)).not.toBeInTheDocument();
       expect(screen.queryByText(`gpt-6-astra-${effort}-fast`)).not.toBeInTheDocument();
     }

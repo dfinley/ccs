@@ -12,7 +12,7 @@ import {
   writeForwardResponseHead,
 } from '../proxy/upstream-response-timeout';
 
-export type CodexReasoningEffort = 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+export type CodexReasoningEffort = 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 export type CodexServiceTier = 'fast';
 type CodexServiceTierRequestValue = 'priority';
 
@@ -52,7 +52,7 @@ interface ForwardJsonContext {
 }
 
 const EXTENDED_CONTEXT_SUFFIX_REGEX = /\[1m\]$/i;
-const CODEX_TUNING_SUFFIX_TOKEN_REGEX = /-(minimal|low|medium|high|xhigh|fast)$/i;
+const CODEX_TUNING_SUFFIX_TOKEN_REGEX = /-(minimal|low|medium|high|xhigh|max|fast)$/i;
 const CODEX_SERVICE_TIER_REQUEST_VALUE: Record<CodexServiceTier, CodexServiceTierRequestValue> = {
   fast: 'priority',
 };
@@ -117,11 +117,11 @@ const EFFORT_RANK: Record<CodexReasoningEffort, number> = {
   medium: 3,
   high: 4,
   xhigh: 5,
+  max: 6,
 };
 
 /** All valid codex effort levels in rank order */
-const EFFORT_BY_RANK: CodexReasoningEffort[] = ['minimal', 'low', 'medium', 'high', 'xhigh'];
-
+const EFFORT_BY_RANK: CodexReasoningEffort[] = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
 function minEffort(a: CodexReasoningEffort, b: CodexReasoningEffort): CodexReasoningEffort {
   return EFFORT_RANK[a] <= EFFORT_RANK[b] ? a : b;
 }
@@ -250,6 +250,7 @@ export class CodexReasoningProxy {
     medium: 0,
     high: 0,
     xhigh: 0,
+    max: 0,
   };
 
   constructor(config: CodexReasoningProxyConfig) {
