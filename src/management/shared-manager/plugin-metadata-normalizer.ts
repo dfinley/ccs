@@ -284,11 +284,7 @@ function isDirectorySourceMarketplace(
   if (!('source' in source) || !('path' in source)) {
     return false;
   }
-  return (
-    source.source === 'directory' &&
-    typeof source.path === 'string' &&
-    source.path.length > 0
-  );
+  return source.source === 'directory' && typeof source.path === 'string' && source.path.length > 0;
 }
 
 /**
