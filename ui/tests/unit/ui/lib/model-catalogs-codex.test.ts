@@ -25,12 +25,14 @@ describe('codex model catalog defaults', () => {
     expect(codex6Astra?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
     expect(codex56Sol?.codexMaxEffort).toBe('max');
     expect(codex56Sol?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+    expect(codex56Luna?.codexMaxEffort).toBe('max');
+    expect(codex56Luna?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
     for (const model of [codex6Astra, codex56Sol, codex56Terra, codex56Luna]) {
       expect(model?.tier).toBeUndefined();
       expect(model?.codexServiceTiers).toEqual(['fast']);
       expect(model?.presetMapping?.haiku).toBe('gpt-5.4-mini');
     }
-    for (const model of [codex56Terra, codex56Luna]) {
+    for (const model of [codex56Terra]) {
       expect(model?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh']);
     }
     expect(codex55?.tier).toBe('paid');

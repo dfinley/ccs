@@ -108,7 +108,7 @@ describe('codex plan compatibility', () => {
     expect(getModelMaxLevel('codex', 'gpt-6-astra-high-fast')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-5.6-sol')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-5.6-terra')).toBe('xhigh');
-    expect(getModelMaxLevel('codex', 'gpt-5.6-luna')).toBe('xhigh');
+    expect(getModelMaxLevel('codex', 'gpt-5.6-luna')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-5.5')).toBe('xhigh');
     expect(getModelMaxLevel('codex', 'gpt-5.4')).toBe('xhigh');
     expect(getModelMaxLevel('codex', 'gpt-5.4-mini')).toBe('high');

@@ -305,8 +305,8 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         id: 'gpt-5.6-luna',
         name: 'GPT-5.6 Luna',
         description: 'Fast and affordable agentic coding model.',
-        codexMaxEffort: 'xhigh',
-        codexEfforts: ['low', 'medium', 'high', 'xhigh'],
+        codexMaxEffort: 'max',
+        codexEfforts: ['low', 'medium', 'high', 'xhigh', 'max'],
         codexServiceTiers: ['fast'],
         presetMapping: {
           default: 'gpt-5.6-luna',
