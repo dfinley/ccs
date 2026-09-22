@@ -264,6 +264,20 @@ describe('Model Catalog', () => {
       assert.strictEqual(opus5.nativeImageInput, true);
       assert.strictEqual(opus5.extendedContext, true);
     });
+    it('includes Claude Opus 5.5 with adaptive levels and 1M context', () => {
+      const { MODEL_CATALOG } = modelCatalog;
+      const opus55 = MODEL_CATALOG.claude.models.find((m) => m.id === 'claude-opus-5-5');
+      assert(opus55, 'Should include Claude Opus 5.5');
+      assert.strictEqual(opus55.name, 'Claude Opus 5.5');
+      assert.strictEqual(opus55.contextWindow, 1000000);
+      assert.strictEqual(opus55.thinking.type, 'levels');
+      assert.deepStrictEqual(opus55.thinking.levels, ['low', 'medium', 'high', 'xhigh', 'max']);
+      assert.strictEqual(opus55.thinking.maxLevel, 'max');
+      assert.strictEqual(opus55.thinking.dynamicAllowed, true);
+      assert.strictEqual(opus55.thinking.zeroAllowed, undefined);
+      assert.strictEqual(opus55.nativeImageInput, true);
+      assert.strictEqual(opus55.extendedContext, true);
+    });
 
     it('retains previous 4.5 snapshot models for explicit selection', () => {
       const { MODEL_CATALOG } = modelCatalog;

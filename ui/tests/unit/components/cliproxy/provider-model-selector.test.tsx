@@ -83,10 +83,11 @@ describe('FlexibleModelSelector', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /select model/i }));
 
-    expect(screen.getByRole('option', { name: /claude-sonnet-5/i })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /claude-opus-5/i })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /claude-opus-4-8/i })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /claude-sonnet-4-6/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^claude-sonnet-5$/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^claude-opus-5-5$/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^claude-opus-5$/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^claude-opus-4-8$/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^claude-sonnet-4-6$/i })).toBeInTheDocument();
   });
 
   it('surfaces Claude Sonnet 5 in the GitHub Copilot CLIProxy picker', async () => {

@@ -812,7 +812,19 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         extendedContext: true,
         presetMapping: {
           default: 'claude-sonnet-5',
-          opus: 'claude-opus-4.8',
+          opus: 'claude-opus-5.5',
+          sonnet: 'claude-sonnet-5',
+          haiku: 'claude-haiku-4.5',
+        },
+      },
+      {
+        id: 'claude-opus-5.5',
+        name: 'Claude Opus 5.5',
+        description: 'Anthropic Claude Opus 5.5 via GitHub Copilot',
+        extendedContext: true,
+        presetMapping: {
+          default: 'claude-opus-5.5',
+          opus: 'claude-opus-5.5',
           sonnet: 'claude-sonnet-5',
           haiku: 'claude-haiku-4.5',
         },
@@ -986,7 +998,7 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         extendedContext: true,
         presetMapping: {
           default: 'claude-sonnet-5',
-          opus: 'claude-opus-4-8',
+          opus: 'claude-opus-5-5',
           sonnet: 'claude-sonnet-5',
           haiku: 'claude-haiku-4-5-20251001',
         },
@@ -1011,6 +1023,18 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         presetMapping: {
           default: 'claude-fable-5',
           opus: 'claude-fable-5',
+          sonnet: 'claude-sonnet-5',
+          haiku: 'claude-haiku-4-5-20251001',
+        },
+      },
+      {
+        id: 'claude-opus-5-5',
+        name: 'Claude Opus 5.5',
+        description: 'Most capable model for long-running agentic coding and knowledge work',
+        extendedContext: true,
+        presetMapping: {
+          default: 'claude-opus-5-5',
+          opus: 'claude-opus-5-5',
           sonnet: 'claude-sonnet-5',
           haiku: 'claude-haiku-4-5-20251001',
         },

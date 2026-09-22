@@ -336,6 +336,30 @@ const PRICING_REGISTRY: Record<string, ModelPricing> = {
   // Rates mirror Opus 4.8 (same Opus tier); fast mode uses Anthropic's documented
   // $10/$50 rates. Registered explicitly so it resolves to
   // Opus-tier pricing instead of the unknown-model fallback.
+  // Claude Opus 5.5 ($4/$20) — Claude 5.5 generation Opus (released 2026-09-22).
+  // Rates: $4 input, $20 output, $5 cache write, $0.20 cache read (5% of input).
+  // Fast mode: 2x ($8/$40, cache write $10, cache read $0.40).
+  'claude-opus-5-5': {
+    inputPerMillion: 4.0,
+    outputPerMillion: 20.0,
+    cacheCreationPerMillion: 5.0,
+    cacheReadPerMillion: 0.2,
+    serviceTiers: {
+      fast: {
+        inputPerMillion: 8.0,
+        outputPerMillion: 40.0,
+        cacheCreationPerMillion: 10.0,
+        cacheReadPerMillion: 0.4,
+      },
+    },
+  },
+  'claude-opus-5.5': {
+    inputPerMillion: 4.0,
+    outputPerMillion: 20.0,
+    cacheCreationPerMillion: 5.0,
+    cacheReadPerMillion: 0.2,
+  },
+
   'claude-opus-5': {
     inputPerMillion: 5.0,
     outputPerMillion: 25.0,

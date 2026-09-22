@@ -739,7 +739,7 @@
         },
         {
           "file": "src/web-server/model-pricing.ts",
-          "loc": 1170
+          "loc": 1194
         },
         {
           "file": "src/cliproxy/config/generator.ts",
@@ -779,7 +779,7 @@
         },
         {
           "file": "src/cliproxy/model-catalog.ts",
-          "loc": 908
+          "loc": 922
         }
       ]
     }
