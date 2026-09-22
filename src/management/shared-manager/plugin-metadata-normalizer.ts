@@ -208,10 +208,14 @@ function buildMarketplaceRegistryContent(sourcePaths: string[], targetConfigDir:
     // A directory-source marketplace lives at its source path and has no clone
     // under plugins/marketplaces/. Even if an empty directory exists under
     // plugins/marketplaces/<name>, preserve the original entry and installLocation.
-    if (isDirectorySourceMarketplace(entry) && fs.existsSync(entry.source.path)) {
+    if (isDirectorySourceMarketplace(entry)) {
+      if (fs.existsSync(entry.source.path)) {
+        continue;
+      }
+      // Prune stale directory source; never resurrect as a clone
+      delete merged[name];
       continue;
     }
-
     if (name in discoveredEntries) {
       merged[name] = {
         ...entry,
@@ -267,18 +271,23 @@ function isMarketplaceRegistryEntry(value: unknown): value is Record<string, unk
 function isDirectorySourceMarketplace(
   entry: unknown
 ): entry is { source: { source: 'directory'; path: string } } {
-  if (!entry || typeof entry !== 'object' || !('source' in entry)) {
+  if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
     return false;
   }
-  const source = (entry as Record<string, unknown>).source;
-  if (!source || typeof source !== 'object' || !('source' in source) || !('path' in source)) {
+  if (!('source' in entry)) {
     return false;
   }
-  const typedSource = source as Record<string, unknown>;
+  const source = entry.source;
+  if (typeof source !== 'object' || source === null || Array.isArray(source)) {
+    return false;
+  }
+  if (!('source' in source) || !('path' in source)) {
+    return false;
+  }
   return (
-    typedSource.source === 'directory' &&
-    typeof typedSource.path === 'string' &&
-    typedSource.path.length > 0
+    source.source === 'directory' &&
+    typeof source.path === 'string' &&
+    source.path.length > 0
   );
 }
 
@@ -353,6 +362,10 @@ export function reconcileLocalMarketplaceRegistry(
       continue;
     }
     const existing = parsed[name];
+    if (isDirectorySourceMarketplace(existing)) {
+      // Stale directory source must not be resurrected as a clone
+      continue;
+    }
     if (existing && typeof existing === 'object' && !Array.isArray(existing)) {
       reconciled[name] = {
         ...(normalizePluginMetadataValue(existing, configDir).normalized as Record<

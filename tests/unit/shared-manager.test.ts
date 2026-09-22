@@ -10,6 +10,7 @@ import SharedManager, {
   normalizePluginMetadataContent as normalizeSharedManagerPluginMetadataContent,
   normalizePluginMetadataPathString as normalizeSharedManagerPluginMetadataPathString,
 } from '../../src/management/shared-manager';
+import { reconcileLocalMarketplaceRegistry } from '../../src/management/shared-manager/plugin-metadata-normalizer';
 
 describe('SharedManager', () => {
   let tempRoot = '';
@@ -1109,6 +1110,60 @@ describe('SharedManager', () => {
         path.join(instancePath, 'plugins', 'known_marketplaces.json')
       ) as Record<string, unknown>;
       expect(reconciled['missing-local-marketplace']).toBeUndefined();
+    });
+    it('reconcileLocalMarketplaceRegistry preserves directory-source marketplaces when no clone directories exist', () => {
+      const instancePath = instanceDir('work');
+      fs.mkdirSync(path.join(instancePath, 'plugins'), { recursive: true });
+
+      const localMarketplaceDir = path.join(tempRoot, 'my-offline-pack');
+      fs.mkdirSync(localMarketplaceDir, { recursive: true });
+
+      const directoryEntry = {
+        source: { source: 'directory', path: localMarketplaceDir },
+        installLocation: localMarketplaceDir,
+        label: 'My Offline Pack',
+      };
+
+      const registryPath = path.join(instancePath, 'plugins', 'known_marketplaces.json');
+      writeJson(registryPath, {
+        'offline-pack': directoryEntry,
+      });
+
+      // No clone directories under plugins/marketplaces exist
+      reconcileLocalMarketplaceRegistry(
+        { claudeDir: claudeDir(), instancesDir: ccsDir() },
+        instancePath
+      );
+
+      expect(fs.existsSync(registryPath)).toBe(true);
+      const reconciled = readJson(registryPath) as Record<string, typeof directoryEntry>;
+      expect(reconciled['offline-pack']).toEqual(directoryEntry);
+    });
+
+    it('reconcileLocalMarketplaceRegistry does not resurrect stale directory-source entry as a clone when same-name clone dir exists', () => {
+      const instancePath = instanceDir('work');
+      fs.mkdirSync(path.join(instancePath, 'plugins'), { recursive: true });
+
+      // Create a leftover directory under plugins/marketplaces/stale-pack
+      fs.mkdirSync(marketplacePath(instancePath, 'stale-pack'), { recursive: true });
+
+      const registryPath = path.join(instancePath, 'plugins', 'known_marketplaces.json');
+      writeJson(registryPath, {
+        'stale-pack': {
+          source: { source: 'directory', path: path.join(tempRoot, 'vanished-source') },
+          installLocation: path.join(tempRoot, 'vanished-source'),
+          label: 'Stale Pack',
+        },
+      });
+
+      reconcileLocalMarketplaceRegistry(
+        { claudeDir: claudeDir(), instancesDir: ccsDir() },
+        instancePath
+      );
+
+      const reconciled = readJson(registryPath) as Record<string, unknown>;
+      // The stale directory source must NOT be resurrected using the clone directory
+      expect(reconciled['stale-pack']).toBeUndefined();
     });
 
     it('does not register transient marketplace directories left behind by interrupted auto-updates', () => {
