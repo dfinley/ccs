@@ -24,6 +24,7 @@ describe('claude preset utils', () => {
     expect(ids).toContain('claude-sonnet-5');
     expect(ids).toContain('claude-fable-5-1');
     expect(ids).toContain('claude-fable-5');
+    expect(ids).toContain('claude-opus-5-5');
     expect(ids).toContain('claude-opus-5');
     expect(ids).toContain('claude-opus-4-8');
     expect(ids).toContain('claude-opus-4-7');
@@ -60,7 +61,7 @@ describe('claude preset utils', () => {
 
     expect(body.settings.env).toMatchObject({
       ANTHROPIC_MODEL: 'claude-sonnet-5',
-      ANTHROPIC_DEFAULT_OPUS_MODEL: 'claude-opus-4-8',
+      ANTHROPIC_DEFAULT_OPUS_MODEL: 'claude-opus-5-5',
       ANTHROPIC_DEFAULT_SONNET_MODEL: 'claude-sonnet-5',
       ANTHROPIC_DEFAULT_HAIKU_MODEL: 'claude-haiku-4-5-20251001',
     });

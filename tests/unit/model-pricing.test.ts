@@ -327,6 +327,28 @@ describe('model-pricing', () => {
       expect(sonnet5.cacheCreationPerMillion).toBe(2.5);
       expect(sonnet5.cacheReadPerMillion).toBe(0.2);
     });
+    it('should return correct pricing for Claude Opus 5.5 and fast mode', () => {
+      const opus55 = getModelPricing('claude-opus-5-5');
+      expect(opus55.inputPerMillion).toBe(4.0);
+      expect(opus55.outputPerMillion).toBe(20.0);
+      expect(opus55.cacheCreationPerMillion).toBe(5.0);
+      expect(opus55.cacheReadPerMillion).toBe(0.2);
+
+      const opus55Dot = getModelPricing('claude-opus-5.5');
+      expect(opus55Dot.inputPerMillion).toBe(4.0);
+      expect(opus55Dot.outputPerMillion).toBe(20.0);
+      expect(opus55Dot.cacheCreationPerMillion).toBe(5.0);
+      expect(opus55Dot.cacheReadPerMillion).toBe(0.2);
+      expect(opus55Dot.serviceTiers).toBeUndefined();
+      // Dotted GHCP ID does not have fast mode and falls through to base rates
+      expect(getModelPricing('claude-opus-5.5', { serviceTier: 'fast' })).toEqual(opus55Dot);
+
+      const opus55Fast = getModelPricing('claude-opus-5-5', { serviceTier: 'fast' });
+      expect(opus55Fast.inputPerMillion).toBe(8.0);
+      expect(opus55Fast.outputPerMillion).toBe(40.0);
+      expect(opus55Fast.cacheCreationPerMillion).toBe(10.0);
+      expect(opus55Fast.cacheReadPerMillion).toBe(0.4);
+    });
 
     it('should return Opus-tier pricing for Claude Opus 5', () => {
       // Opus 5 mirrors Opus 4.8 rates; date-stamped ids resolve via stripDateSuffix.
