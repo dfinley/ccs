@@ -348,6 +348,18 @@ describe('Model Catalog', () => {
       });
       assert.deepStrictEqual(sol.codexServiceTiers, ['fast']);
     });
+    it('includes Luna with 272k context, max effort level, and fast mode', () => {
+      const luna = modelCatalog.MODEL_CATALOG.codex.models.find((m) => m.id === 'gpt-5.6-luna');
+      assert(luna, 'Should include GPT-5.6 Luna');
+      assert.strictEqual(luna.contextWindow, 272000);
+      assert.deepStrictEqual(luna.thinking, {
+        type: 'levels',
+        levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+        maxLevel: 'max',
+        dynamicAllowed: false,
+      });
+      assert.deepStrictEqual(luna.codexServiceTiers, ['fast']);
+    });
 
     it('has correct default model', () => {
       const { MODEL_CATALOG } = modelCatalog;
