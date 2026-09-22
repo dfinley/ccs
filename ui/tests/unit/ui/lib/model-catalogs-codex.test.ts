@@ -21,8 +21,9 @@ describe('codex model catalog defaults', () => {
       sonnet: 'gpt-6-astra',
       haiku: 'gpt-5.4-mini',
     });
-    expect(codex6Astra?.codexMaxEffort).toBe('xhigh');
-    for (const model of [codex6Astra, codex56Sol, codex56Terra, codex56Luna]) {
+    expect(codex6Astra?.codexMaxEffort).toBe('max');
+    expect(codex6Astra?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+    for (const model of [codex56Sol, codex56Terra, codex56Luna]) {
       expect(model?.tier).toBeUndefined();
       expect(model?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh']);
       expect(model?.codexServiceTiers).toEqual(['fast']);

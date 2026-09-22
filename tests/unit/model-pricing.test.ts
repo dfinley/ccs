@@ -276,7 +276,38 @@ describe('model-pricing', () => {
       expect(fable5.cacheCreationPerMillion).toBe(12.5);
       expect(fable5.cacheReadPerMillion).toBe(1.0);
     });
+    it('should return correct pricing for GPT-6 Astra and apply fast service tier', () => {
+      const astra = getModelPricing('gpt-6-astra');
+      expect(astra.inputPerMillion).toBe(10.0);
+      expect(astra.outputPerMillion).toBe(50.0);
+      expect(astra.cacheCreationPerMillion).toBe(12.5);
+      expect(astra.cacheReadPerMillion).toBe(1.0);
 
+      const astraFast = getModelPricing('gpt-6-astra-fast');
+      expect(astraFast.inputPerMillion).toBe(20.0);
+      expect(astraFast.outputPerMillion).toBe(100.0);
+      expect(astraFast.cacheCreationPerMillion).toBe(25.0);
+      expect(astraFast.cacheReadPerMillion).toBe(2.0);
+
+      const astraMax = getModelPricing('gpt-6-astra-max');
+      expect(astraMax.inputPerMillion).toBe(10.0);
+      expect(astraMax.outputPerMillion).toBe(50.0);
+
+      const astraMaxFast = getModelPricing('gpt-6-astra-max-fast');
+      expect(astraMaxFast.inputPerMillion).toBe(20.0);
+      expect(astraMaxFast.outputPerMillion).toBe(100.0);
+
+      const legacyMax = getModelPricing('gpt-5.1-codex-max');
+      const gpt54 = getModelPricing('gpt-5.4');
+      expect(legacyMax).toEqual(gpt54);
+    });
+    it('does not strip tuning suffixes from non-Codex models', () => {
+      const fallback = getModelPricing('unknown-model-xyz');
+      const geminiFlash = getModelPricing('gemini-2.5-flash');
+      expect(getModelPricing('gemini-2.5-flash-high')).toEqual(fallback);
+      expect(getModelPricing('gemini-2.5-flash-high')).not.toEqual(geminiFlash);
+      expect(getModelPricing('custom-provider-model-max')).toEqual(fallback);
+    });
     it('should return correct pricing for Claude Fable 5.1', () => {
       // Same base rates as Fable 5, but cache hits bill at 0.025x base input
       // ($0.25/MTok) rather than the standard 0.1x multiplier.

@@ -316,8 +316,8 @@ describe('Model Catalog', () => {
       assert.strictEqual(astra.contextWindow, 272000);
       assert.deepStrictEqual(astra.thinking, {
         type: 'levels',
-        levels: ['low', 'medium', 'high', 'xhigh'],
-        maxLevel: 'xhigh',
+        levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+        maxLevel: 'max',
         dynamicAllowed: false,
       });
       assert.deepStrictEqual(astra.codexServiceTiers, ['fast']);

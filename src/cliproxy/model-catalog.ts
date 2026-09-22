@@ -201,8 +201,8 @@ export const MODEL_CATALOG: Partial<Record<CLIProxyProvider, ProviderCatalog>> =
         contextWindow: 272000,
         thinking: {
           type: 'levels',
-          levels: ['low', 'medium', 'high', 'xhigh'],
-          maxLevel: 'xhigh',
+          levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+          maxLevel: 'max',
           dynamicAllowed: false,
         },
         codexServiceTiers: ['fast'],
@@ -764,7 +764,7 @@ export function findModel(provider: CLIProxyProvider, modelId: string): ModelEnt
   if (provider === 'codex') {
     for (const candidate of [...lookupCandidates]) {
       const tuningMatch = candidate.match(
-        /^(.*?)(?:-(?:minimal|low|medium|high|xhigh)(?:-fast)?|-fast(?:-(?:minimal|low|medium|high|xhigh))?)$/i
+        /^(.*?)(?:-(?:minimal|low|medium|high|xhigh|max)(?:-fast)?|-fast(?:-(?:minimal|low|medium|high|xhigh|max))?)$/i
       );
       if (tuningMatch?.[1]) {
         lookupCandidates.add(tuningMatch[1].trim());

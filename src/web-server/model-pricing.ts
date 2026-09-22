@@ -501,7 +501,13 @@ const PRICING_REGISTRY: Record<string, ModelPricing> = {
     cacheCreationPerMillion: 0.0,
     cacheReadPerMillion: 0.375,
   },
-
+  // GPT-6 Astra ($10/$50, fast 2x)
+  'gpt-6-astra': {
+    ...buildRates(10.0, 50.0),
+    serviceTiers: {
+      fast: buildRates(20.0, 100.0),
+    },
+  },
   // ---------------------------------------------------------------------------
   // Google Gemini Models - Source: better-ccusage
   // ---------------------------------------------------------------------------
@@ -946,6 +952,26 @@ const NORMALIZED_PRICING_REGISTRY: Record<string, ModelPricing> = Object.entries
   return acc;
 }, {});
 
+const CODEX_PRICING_TUNING_REGEX =
+  /(?:-(?:minimal|low|medium|high|xhigh|max)(?:-fast)?|-fast(?:-(?:minimal|low|medium|high|xhigh|max))?|-fast)$/i;
+
+function isCodexTunableGptModel(modelName: string): boolean {
+  return /^gpt-[56]/i.test(modelName) || /^codex/i.test(modelName);
+}
+
+function stripCodexPricingTuning(modelName: string): string | null {
+  if (modelName === 'gpt-5.1-codex-max' || !isCodexTunableGptModel(modelName)) {
+    return null;
+  }
+  const stripped = modelName.replace(CODEX_PRICING_TUNING_REGEX, '');
+  if (
+    stripped !== modelName &&
+    Object.prototype.hasOwnProperty.call(NORMALIZED_PRICING_REGISTRY, stripped)
+  ) {
+    return stripped;
+  }
+  return null;
+}
 function getLookupCandidates(model: string): string[] {
   const normalized = normalizeModelName(model);
   const baseModel = normalized.split(':')[0];
@@ -965,6 +991,11 @@ function getLookupCandidates(model: string): string[] {
     candidates.push(baseStripped);
   }
 
+  // Add codex tuning-stripped variants (e.g., "gpt-6-astra-max-fast" -> "gpt-6-astra")
+  const codexStripped = stripCodexPricingTuning(normalized);
+  if (codexStripped && !candidates.includes(codexStripped)) {
+    candidates.push(codexStripped);
+  }
   return candidates;
 }
 
@@ -1059,7 +1090,8 @@ function applyServiceTier(pricing: ModelPricing, tier: string | undefined): Mode
  * first known family tier that happens to share a prefix.
  */
 export function getModelPricing(model: string, options: PricingLookupOptions = {}): ModelPricing {
-  return applyServiceTier(resolveBasePricing(model, options), options.serviceTier);
+  const effectiveTier = options.serviceTier ?? (/-fast(?=-|$)/i.test(model) ? 'fast' : undefined);
+  return applyServiceTier(resolveBasePricing(model, options), effectiveTier);
 }
 
 function resolveBasePricing(model: string, options: PricingLookupOptions): ModelPricing {

@@ -263,8 +263,8 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         id: 'gpt-6-astra',
         name: 'GPT-6 Astra',
         description: 'Most capable model for complex, demanding work.',
-        codexMaxEffort: 'xhigh',
-        codexEfforts: ['low', 'medium', 'high', 'xhigh'],
+        codexMaxEffort: 'max',
+        codexEfforts: ['low', 'medium', 'high', 'xhigh', 'max'],
         codexServiceTiers: ['fast'],
         presetMapping: {
           default: 'gpt-6-astra',
