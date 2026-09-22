@@ -1038,7 +1038,7 @@ describe('SharedManager', () => {
       fs.mkdirSync(instancePath, { recursive: true });
       manager.linkSharedDirectories(instancePath);
 
-      const localMarketplaceDir = path.join(tempRoot, 'my-local-marketplace');
+      const localMarketplaceDir = path.join(claudeDir(), 'plugins', 'my-local-marketplace');
       fs.mkdirSync(localMarketplaceDir, { recursive: true });
 
       const directoryEntry = {
@@ -1057,6 +1057,8 @@ describe('SharedManager', () => {
         path.join(instancePath, 'plugins', 'known_marketplaces.json')
       ) as Record<string, typeof directoryEntry>;
       expect(reconciled['local-marketplace']).toEqual(directoryEntry);
+      expect(reconciled['local-marketplace'].installLocation).toBe(localMarketplaceDir);
+      expect(reconciled['local-marketplace'].source.path).toBe(localMarketplaceDir);
     });
 
     it('does not overwrite installLocation of directory-source marketplace even if a directory exists at clone location (issue #1737)', () => {
