@@ -106,7 +106,7 @@ describe('codex plan compatibility', () => {
   it('tracks Codex thinking caps for current safe defaults, paid models, and legacy aliases', () => {
     expect(getModelMaxLevel('codex', 'gpt-6-astra')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-6-astra-high-fast')).toBe('max');
-    expect(getModelMaxLevel('codex', 'gpt-5.6-sol')).toBe('xhigh');
+    expect(getModelMaxLevel('codex', 'gpt-5.6-sol')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-5.6-terra')).toBe('xhigh');
     expect(getModelMaxLevel('codex', 'gpt-5.6-luna')).toBe('xhigh');
     expect(getModelMaxLevel('codex', 'gpt-5.5')).toBe('xhigh');

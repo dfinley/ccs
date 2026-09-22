@@ -277,8 +277,8 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         id: 'gpt-5.6-sol',
         name: 'GPT-5.6 Sol',
         description: 'Latest frontier agentic coding model.',
-        codexMaxEffort: 'xhigh',
-        codexEfforts: ['low', 'medium', 'high', 'xhigh'],
+        codexMaxEffort: 'max',
+        codexEfforts: ['low', 'medium', 'high', 'xhigh', 'max'],
         codexServiceTiers: ['fast'],
         presetMapping: {
           default: 'gpt-5.6-sol',
