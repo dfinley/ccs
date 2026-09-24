@@ -195,14 +195,27 @@ export const MODEL_CATALOG: Partial<Record<CLIProxyProvider, ProviderCatalog>> =
     defaultModel: 'gpt-5.4',
     models: [
       {
+        id: 'gpt-6-astra',
+        name: 'GPT-6 Astra',
+        description: 'Most capable model for complex, demanding work.',
+        contextWindow: 272000,
+        thinking: {
+          type: 'levels',
+          levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+          maxLevel: 'max',
+          dynamicAllowed: false,
+        },
+        codexServiceTiers: ['fast'],
+      },
+      {
         id: 'gpt-5.6-sol',
         name: 'GPT-5.6 Sol',
         description: 'Latest frontier agentic coding model.',
-        contextWindow: 372000,
+        contextWindow: 272000,
         thinking: {
           type: 'levels',
-          levels: ['low', 'medium', 'high', 'xhigh'],
-          maxLevel: 'xhigh',
+          levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+          maxLevel: 'max',
           dynamicAllowed: false,
         },
         codexServiceTiers: ['fast'],
@@ -224,11 +237,11 @@ export const MODEL_CATALOG: Partial<Record<CLIProxyProvider, ProviderCatalog>> =
         id: 'gpt-5.6-luna',
         name: 'GPT-5.6 Luna',
         description: 'Fast and affordable agentic coding model.',
-        contextWindow: 372000,
+        contextWindow: 272000,
         thinking: {
           type: 'levels',
-          levels: ['low', 'medium', 'high', 'xhigh'],
-          maxLevel: 'xhigh',
+          levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+          maxLevel: 'max',
           dynamicAllowed: false,
         },
         codexServiceTiers: ['fast'],
@@ -565,6 +578,20 @@ export const MODEL_CATALOG: Partial<Record<CLIProxyProvider, ProviderCatalog>> =
         extendedContext: true,
       },
       {
+        id: 'claude-opus-5-5',
+        name: 'Claude Opus 5.5',
+        description: 'Most capable model for long-running agentic coding and knowledge work',
+        contextWindow: 1000000,
+        nativeImageInput: true,
+        thinking: {
+          type: 'levels',
+          levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+          maxLevel: 'max',
+          dynamicAllowed: true,
+        },
+        extendedContext: true,
+      },
+      {
         id: 'claude-opus-5',
         name: 'Claude Opus 5',
         description: 'Latest premium model',
@@ -751,7 +778,7 @@ export function findModel(provider: CLIProxyProvider, modelId: string): ModelEnt
   if (provider === 'codex') {
     for (const candidate of [...lookupCandidates]) {
       const tuningMatch = candidate.match(
-        /^(.*?)(?:-(?:minimal|low|medium|high|xhigh)(?:-fast)?|-fast(?:-(?:minimal|low|medium|high|xhigh))?)$/i
+        /^(.*?)(?:-(?:minimal|low|medium|high|xhigh|max)(?:-fast)?|-fast(?:-(?:minimal|low|medium|high|xhigh|max))?)$/i
       );
       if (tuningMatch?.[1]) {
         lookupCandidates.add(tuningMatch[1].trim());

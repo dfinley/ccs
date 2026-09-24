@@ -28,6 +28,13 @@ describe('codex plan compatibility', () => {
     expect(getFreePlanFallbackCodexModel('gpt-5.3-codex-spark')).toBe('gpt-5.4-mini');
   });
 
+  it('keeps Astra routing direct without a predefined free-plan fallback', () => {
+    expect(getFreePlanFallbackCodexModel('gpt-6-astra')).toBeNull();
+    expect(getFreePlanFallbackCodexModel('gpt-6-astra-high')).toBeNull();
+    expect(getFreePlanFallbackCodexModel('gpt-6-astra-fast')).toBeNull();
+    expect(getFreePlanFallbackCodexModel('gpt-6-astra-xhigh-fast')).toBeNull();
+  });
+
   it('does not rewrite cross-plan or already-safe Codex models', () => {
     expect(getFreePlanFallbackCodexModel('gpt-5.6-sol')).toBeNull();
     expect(getFreePlanFallbackCodexModel('gpt-5.6-terra-high')).toBeNull();
@@ -97,9 +104,11 @@ describe('codex plan compatibility', () => {
   });
 
   it('tracks Codex thinking caps for current safe defaults, paid models, and legacy aliases', () => {
-    expect(getModelMaxLevel('codex', 'gpt-5.6-sol')).toBe('xhigh');
+    expect(getModelMaxLevel('codex', 'gpt-6-astra')).toBe('max');
+    expect(getModelMaxLevel('codex', 'gpt-6-astra-high-fast')).toBe('max');
+    expect(getModelMaxLevel('codex', 'gpt-5.6-sol')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-5.6-terra')).toBe('xhigh');
-    expect(getModelMaxLevel('codex', 'gpt-5.6-luna')).toBe('xhigh');
+    expect(getModelMaxLevel('codex', 'gpt-5.6-luna')).toBe('max');
     expect(getModelMaxLevel('codex', 'gpt-5.5')).toBe('xhigh');
     expect(getModelMaxLevel('codex', 'gpt-5.4')).toBe('xhigh');
     expect(getModelMaxLevel('codex', 'gpt-5.4-mini')).toBe('high');

@@ -336,6 +336,30 @@ const PRICING_REGISTRY: Record<string, ModelPricing> = {
   // Rates mirror Opus 4.8 (same Opus tier); fast mode uses Anthropic's documented
   // $10/$50 rates. Registered explicitly so it resolves to
   // Opus-tier pricing instead of the unknown-model fallback.
+  // Claude Opus 5.5 ($4/$20) — Claude 5.5 generation Opus (released 2026-09-22).
+  // Rates: $4 input, $20 output, $5 cache write, $0.20 cache read (5% of input).
+  // Fast mode: 2x ($8/$40, cache write $10, cache read $0.40).
+  'claude-opus-5-5': {
+    inputPerMillion: 4.0,
+    outputPerMillion: 20.0,
+    cacheCreationPerMillion: 5.0,
+    cacheReadPerMillion: 0.2,
+    serviceTiers: {
+      fast: {
+        inputPerMillion: 8.0,
+        outputPerMillion: 40.0,
+        cacheCreationPerMillion: 10.0,
+        cacheReadPerMillion: 0.4,
+      },
+    },
+  },
+  'claude-opus-5.5': {
+    inputPerMillion: 4.0,
+    outputPerMillion: 20.0,
+    cacheCreationPerMillion: 5.0,
+    cacheReadPerMillion: 0.2,
+  },
+
   'claude-opus-5': {
     inputPerMillion: 5.0,
     outputPerMillion: 25.0,
@@ -501,7 +525,13 @@ const PRICING_REGISTRY: Record<string, ModelPricing> = {
     cacheCreationPerMillion: 0.0,
     cacheReadPerMillion: 0.375,
   },
-
+  // GPT-6 Astra ($10/$50, fast 2x)
+  'gpt-6-astra': {
+    ...buildRates(10.0, 50.0),
+    serviceTiers: {
+      fast: buildRates(20.0, 100.0),
+    },
+  },
   // ---------------------------------------------------------------------------
   // Google Gemini Models - Source: better-ccusage
   // ---------------------------------------------------------------------------
@@ -946,6 +976,26 @@ const NORMALIZED_PRICING_REGISTRY: Record<string, ModelPricing> = Object.entries
   return acc;
 }, {});
 
+const CODEX_PRICING_TUNING_REGEX =
+  /(?:-(?:minimal|low|medium|high|xhigh|max)(?:-fast)?|-fast(?:-(?:minimal|low|medium|high|xhigh|max))?|-fast)$/i;
+
+function isCodexTunableGptModel(modelName: string): boolean {
+  return /^gpt-[56]/i.test(modelName) || /^codex/i.test(modelName);
+}
+
+function stripCodexPricingTuning(modelName: string): string | null {
+  if (modelName === 'gpt-5.1-codex-max' || !isCodexTunableGptModel(modelName)) {
+    return null;
+  }
+  const stripped = modelName.replace(CODEX_PRICING_TUNING_REGEX, '');
+  if (
+    stripped !== modelName &&
+    Object.prototype.hasOwnProperty.call(NORMALIZED_PRICING_REGISTRY, stripped)
+  ) {
+    return stripped;
+  }
+  return null;
+}
 function getLookupCandidates(model: string): string[] {
   const normalized = normalizeModelName(model);
   const baseModel = normalized.split(':')[0];
@@ -965,6 +1015,11 @@ function getLookupCandidates(model: string): string[] {
     candidates.push(baseStripped);
   }
 
+  // Add codex tuning-stripped variants (e.g., "gpt-6-astra-max-fast" -> "gpt-6-astra")
+  const codexStripped = stripCodexPricingTuning(normalized);
+  if (codexStripped && !candidates.includes(codexStripped)) {
+    candidates.push(codexStripped);
+  }
   return candidates;
 }
 
@@ -1059,7 +1114,8 @@ function applyServiceTier(pricing: ModelPricing, tier: string | undefined): Mode
  * first known family tier that happens to share a prefix.
  */
 export function getModelPricing(model: string, options: PricingLookupOptions = {}): ModelPricing {
-  return applyServiceTier(resolveBasePricing(model, options), options.serviceTier);
+  const effectiveTier = options.serviceTier ?? (/-fast(?=-|$)/i.test(model) ? 'fast' : undefined);
+  return applyServiceTier(resolveBasePricing(model, options), effectiveTier);
 }
 
 function resolveBasePricing(model: string, options: PricingLookupOptions): ModelPricing {

@@ -86,6 +86,14 @@ describe('Codex Reasoning Proxy', () => {
         model: 'gpt-5.2-codex',
         reasoning: { effort: 'xhigh' },
       });
+      const outMax = injectReasoningEffortIntoBody(
+        { model: 'gpt-6-astra', reasoning: { effort: 'low' } },
+        'max'
+      );
+      assert.deepStrictEqual(outMax, {
+        model: 'gpt-6-astra',
+        reasoning: { effort: 'max' },
+      });
     });
   });
 

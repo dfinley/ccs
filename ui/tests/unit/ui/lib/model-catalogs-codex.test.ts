@@ -4,6 +4,7 @@ import { MODEL_CATALOGS } from '@/lib/model-catalogs';
 describe('codex model catalog defaults', () => {
   it('mirrors the current Codex runtime catalog and free-safe defaults', () => {
     const codexCatalog = MODEL_CATALOGS.codex;
+    const codex6Astra = codexCatalog.models.find((model) => model.id === 'gpt-6-astra');
     const codex56Sol = codexCatalog.models.find((model) => model.id === 'gpt-5.6-sol');
     const codex56Terra = codexCatalog.models.find((model) => model.id === 'gpt-5.6-terra');
     const codex56Luna = codexCatalog.models.find((model) => model.id === 'gpt-5.6-luna');
@@ -14,11 +15,25 @@ describe('codex model catalog defaults', () => {
     const codexMini = codexCatalog.models.find((model) => model.id === 'gpt-5.4-mini');
 
     expect(codexCatalog.defaultModel).toBe('gpt-5.4');
-    for (const model of [codex56Sol, codex56Terra, codex56Luna]) {
+    expect(codex6Astra?.presetMapping).toEqual({
+      default: 'gpt-6-astra',
+      opus: 'gpt-6-astra',
+      sonnet: 'gpt-6-astra',
+      haiku: 'gpt-5.4-mini',
+    });
+    expect(codex6Astra?.codexMaxEffort).toBe('max');
+    expect(codex6Astra?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+    expect(codex56Sol?.codexMaxEffort).toBe('max');
+    expect(codex56Sol?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+    expect(codex56Luna?.codexMaxEffort).toBe('max');
+    expect(codex56Luna?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+    for (const model of [codex6Astra, codex56Sol, codex56Terra, codex56Luna]) {
       expect(model?.tier).toBeUndefined();
-      expect(model?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh']);
       expect(model?.codexServiceTiers).toEqual(['fast']);
       expect(model?.presetMapping?.haiku).toBe('gpt-5.4-mini');
+    }
+    for (const model of [codex56Terra]) {
+      expect(model?.codexEfforts).toEqual(['low', 'medium', 'high', 'xhigh']);
     }
     expect(codex55?.tier).toBe('paid');
     expect(codex55?.presetMapping?.haiku).toBe('gpt-5.4-mini');

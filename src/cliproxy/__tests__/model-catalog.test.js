@@ -264,6 +264,20 @@ describe('Model Catalog', () => {
       assert.strictEqual(opus5.nativeImageInput, true);
       assert.strictEqual(opus5.extendedContext, true);
     });
+    it('includes Claude Opus 5.5 with adaptive levels and 1M context', () => {
+      const { MODEL_CATALOG } = modelCatalog;
+      const opus55 = MODEL_CATALOG.claude.models.find((m) => m.id === 'claude-opus-5-5');
+      assert(opus55, 'Should include Claude Opus 5.5');
+      assert.strictEqual(opus55.name, 'Claude Opus 5.5');
+      assert.strictEqual(opus55.contextWindow, 1000000);
+      assert.strictEqual(opus55.thinking.type, 'levels');
+      assert.deepStrictEqual(opus55.thinking.levels, ['low', 'medium', 'high', 'xhigh', 'max']);
+      assert.strictEqual(opus55.thinking.maxLevel, 'max');
+      assert.strictEqual(opus55.thinking.dynamicAllowed, true);
+      assert.strictEqual(opus55.thinking.zeroAllowed, undefined);
+      assert.strictEqual(opus55.nativeImageInput, true);
+      assert.strictEqual(opus55.extendedContext, true);
+    });
 
     it('retains previous 4.5 snapshot models for explicit selection', () => {
       const { MODEL_CATALOG } = modelCatalog;
@@ -310,6 +324,43 @@ describe('Model Catalog', () => {
   });
 
   describe('Codex models', () => {
+    it('includes Astra with supported CCS efforts, fast mode, and its context window', () => {
+      const astra = modelCatalog.MODEL_CATALOG.codex.models.find((m) => m.id === 'gpt-6-astra');
+      assert(astra, 'Should include GPT-6 Astra');
+      assert.strictEqual(astra.contextWindow, 272000);
+      assert.deepStrictEqual(astra.thinking, {
+        type: 'levels',
+        levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+        maxLevel: 'max',
+        dynamicAllowed: false,
+      });
+      assert.deepStrictEqual(astra.codexServiceTiers, ['fast']);
+    });
+    it('includes Sol with 272k context, max effort level, and fast mode', () => {
+      const sol = modelCatalog.MODEL_CATALOG.codex.models.find((m) => m.id === 'gpt-5.6-sol');
+      assert(sol, 'Should include GPT-5.6 Sol');
+      assert.strictEqual(sol.contextWindow, 272000);
+      assert.deepStrictEqual(sol.thinking, {
+        type: 'levels',
+        levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+        maxLevel: 'max',
+        dynamicAllowed: false,
+      });
+      assert.deepStrictEqual(sol.codexServiceTiers, ['fast']);
+    });
+    it('includes Luna with 272k context, max effort level, and fast mode', () => {
+      const luna = modelCatalog.MODEL_CATALOG.codex.models.find((m) => m.id === 'gpt-5.6-luna');
+      assert(luna, 'Should include GPT-5.6 Luna');
+      assert.strictEqual(luna.contextWindow, 272000);
+      assert.deepStrictEqual(luna.thinking, {
+        type: 'levels',
+        levels: ['low', 'medium', 'high', 'xhigh', 'max'],
+        maxLevel: 'max',
+        dynamicAllowed: false,
+      });
+      assert.deepStrictEqual(luna.codexServiceTiers, ['fast']);
+    });
+
     it('has correct default model', () => {
       const { MODEL_CATALOG } = modelCatalog;
       assert.strictEqual(MODEL_CATALOG.codex.defaultModel, 'gpt-5.4');
@@ -319,6 +370,7 @@ describe('Model Catalog', () => {
       const { MODEL_CATALOG } = modelCatalog;
       const ids = MODEL_CATALOG.codex.models.map((m) => m.id);
       assert.deepStrictEqual(ids, [
+        'gpt-6-astra',
         'gpt-5.6-sol',
         'gpt-5.6-terra',
         'gpt-5.6-luna',

@@ -260,11 +260,25 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
     defaultModel: 'gpt-5.4',
     models: [
       {
+        id: 'gpt-6-astra',
+        name: 'GPT-6 Astra',
+        description: 'Most capable model for complex, demanding work.',
+        codexMaxEffort: 'max',
+        codexEfforts: ['low', 'medium', 'high', 'xhigh', 'max'],
+        codexServiceTiers: ['fast'],
+        presetMapping: {
+          default: 'gpt-6-astra',
+          opus: 'gpt-6-astra',
+          sonnet: 'gpt-6-astra',
+          haiku: 'gpt-5.4-mini',
+        },
+      },
+      {
         id: 'gpt-5.6-sol',
         name: 'GPT-5.6 Sol',
         description: 'Latest frontier agentic coding model.',
-        codexMaxEffort: 'xhigh',
-        codexEfforts: ['low', 'medium', 'high', 'xhigh'],
+        codexMaxEffort: 'max',
+        codexEfforts: ['low', 'medium', 'high', 'xhigh', 'max'],
         codexServiceTiers: ['fast'],
         presetMapping: {
           default: 'gpt-5.6-sol',
@@ -291,8 +305,8 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         id: 'gpt-5.6-luna',
         name: 'GPT-5.6 Luna',
         description: 'Fast and affordable agentic coding model.',
-        codexMaxEffort: 'xhigh',
-        codexEfforts: ['low', 'medium', 'high', 'xhigh'],
+        codexMaxEffort: 'max',
+        codexEfforts: ['low', 'medium', 'high', 'xhigh', 'max'],
         codexServiceTiers: ['fast'],
         presetMapping: {
           default: 'gpt-5.6-luna',
@@ -798,7 +812,19 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         extendedContext: true,
         presetMapping: {
           default: 'claude-sonnet-5',
-          opus: 'claude-opus-4.8',
+          opus: 'claude-opus-5.5',
+          sonnet: 'claude-sonnet-5',
+          haiku: 'claude-haiku-4.5',
+        },
+      },
+      {
+        id: 'claude-opus-5.5',
+        name: 'Claude Opus 5.5',
+        description: 'Anthropic Claude Opus 5.5 via GitHub Copilot',
+        extendedContext: true,
+        presetMapping: {
+          default: 'claude-opus-5.5',
+          opus: 'claude-opus-5.5',
           sonnet: 'claude-sonnet-5',
           haiku: 'claude-haiku-4.5',
         },
@@ -972,7 +998,7 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         extendedContext: true,
         presetMapping: {
           default: 'claude-sonnet-5',
-          opus: 'claude-opus-4-8',
+          opus: 'claude-opus-5-5',
           sonnet: 'claude-sonnet-5',
           haiku: 'claude-haiku-4-5-20251001',
         },
@@ -997,6 +1023,18 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         presetMapping: {
           default: 'claude-fable-5',
           opus: 'claude-fable-5',
+          sonnet: 'claude-sonnet-5',
+          haiku: 'claude-haiku-4-5-20251001',
+        },
+      },
+      {
+        id: 'claude-opus-5-5',
+        name: 'Claude Opus 5.5',
+        description: 'Most capable model for long-running agentic coding and knowledge work',
+        extendedContext: true,
+        presetMapping: {
+          default: 'claude-opus-5-5',
+          opus: 'claude-opus-5-5',
           sonnet: 'claude-sonnet-5',
           haiku: 'claude-haiku-4-5-20251001',
         },
